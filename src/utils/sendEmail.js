@@ -2,13 +2,13 @@ import nodemailer from 'nodemailer';
 import * as handlebars from 'handlebars';
 import * as fs from 'fs';
 
-export const EmailTypes = {
+const EmailTypes = {
   confirm: 'confirm',
   forgotPassword: 'forgotPassword',
   changeApplicationPermission: 'changeApplicationPermission'
 }
 
-export const sendEmail = async ( emailType, user, token ) => {
+const sendEmail = async ( emailType, user, token ) => {
   
   var email={
     sender: process.env.EMAIL_USER,
@@ -17,7 +17,7 @@ export const sendEmail = async ( emailType, user, token ) => {
     content: null,
     buttonHref: null
   }
-  var source, template, replacements
+  let source, template, replacements
   switch (emailType) {
     case 'confirm':
       email.subject='Welcome to MaviDurak-IO'
@@ -28,6 +28,7 @@ export const sendEmail = async ( emailType, user, token ) => {
         username: user.name,
         href: email.buttonHref
       };
+      email.content = template(replacements);
       break;
 
     case 'forgotPassword':
@@ -39,6 +40,7 @@ export const sendEmail = async ( emailType, user, token ) => {
         username: user.name,
         href: email.buttonHref
       };  
+      email.content = template(replacements);
     break;
 
     case 'changeApplicationPermission':
@@ -59,8 +61,7 @@ export const sendEmail = async ( emailType, user, token ) => {
       pass: process.env.EMAIL_PASSWORD, // user password
     },
   });
-
-  email.content = template(replacements);  
+  
   // send mail with defined transport object
   const info = await transporter.sendMail({
     from: email.from,
@@ -68,7 +69,7 @@ export const sendEmail = async ( emailType, user, token ) => {
     subject: email.subject,
     html: email.content
   });
-  
+
   console.log(`\n++++++++++++++++| ${emailType} Message sent to ${email.to} - ${info.messageId} |++++++++++++++++\n`);
 };
 
