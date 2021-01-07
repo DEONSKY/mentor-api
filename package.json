@@ -3,13 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "serve": "nodemon start",
     "debug": "nodemon --inspect src/server --exec babel-node",
     "migrate": "./node_modules/.bin/sequelize db:migrate",
     "lint": "eslint .",
-    "test": "node tests/basic/sendData.js"
+    "test": "npm run serve -- --test"
   },
   "repository": {
     "type": "git",

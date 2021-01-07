@@ -4,6 +4,7 @@ import body_parser from 'body-parser';
 import cors from 'cors';
 import router from './router';
 import pre_handlers from './pre_handlers';
+import { test } from '../tests/basic/sendData'
 
 const app = express();
 
@@ -20,3 +21,5 @@ app.listen(
     console.log(`Application run at http://localhost:${process.env.APP_PORT}, NODE_ENV= ${process.env.NODE_ENV}`);
   },
 );
+
+test()

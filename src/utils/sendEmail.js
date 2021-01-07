@@ -2,13 +2,13 @@ import nodemailer from 'nodemailer';
 import * as handlebars from 'handlebars';
 import * as fs from 'fs';
 
-const EmailTypes = {
+export const EmailTypes = {
   confirm: 'confirm',
   forgotPassword: 'forgotPassword',
   changeApplicationPermission: 'changeApplicationPermission'
 }
 
-const sendEmail = async ( emailType, user, token ) => {
+export const sendEmail = async ( emailType, user, token ) => {
   
   var email={
     sender: process.env.EMAIL_USER,
