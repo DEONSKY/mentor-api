@@ -24,36 +24,43 @@ var tokenRandom = 'randToken'
 var titleRandom = 'randTitle'
 var dataTypeRandom = 'randType'
 var descriptionRandom = 'randDesc'
+var datasetIdRandom = 0
 
-const signUpTest = () => {
+var signUpSuccess =0
+var signUpFailed = 0
+const signUpTest = async() => {
 
     usernameRandom = generateFullName()
     passwordRandom = 'randPassword'
     emailRandom = 'email@email.com'
     nameRandom = 'this.name'
 
-    console.log('user test run\n')//uye olma
-    axios.post('http://localhost:4000/authentications/register/', {
+    console.log('sign up\n')//uye olma
+    await axios.post('http://localhost:4000/authentications/register/', {
         username: usernameRandom,
         password: passwordRandom,
         email: emailRandom,
         name: nameRandom
     })
         .then((respose) => {
-            console.log(respose.data)
+            console.log('success')
+            signUpSuccess++
         })
         .catch((err) => {
-            console.log(err)
+            console.log('error')
+            signUpFailed++
         })
         //uye olma sonu
 }
 
 
-const loginTest = () => {
-    axios
+const loginTest = async() => {
+
+    console.log('login\n')//uye olma
+    await axios
         .post('http://localhost:4000/authentications/login/', {
-          username: this.username,
-          password: this.password
+          username: usernameRandom,
+          password: passwordRandom
         })
         .then((respose) => {
           if (respose.status === 200) {
@@ -62,16 +69,15 @@ const loginTest = () => {
           }
         })
         .catch((err) => {
-          console.log(err)
-          console.log(err.response.data)
+          //console.log(err.response.data)
           if (err.response.data.error !== undefined) {
             console.log('Validation Failed')
           }
         })
 }
 
-const profileViewTest = () => {
-    axios
+const profileViewTest = async() => {
+    await axios
       .get('/authentications/me/', {
         headers: {
           'X-AccessToken': tokenRandom
@@ -87,9 +93,9 @@ const profileViewTest = () => {
         }
       })
 }
-const changeUserNameTest = () => {
+const changeUserNameTest = async() => {
     usernameRandom = generateFullName()
-    axios
+    await axios
         .patch(
           '/authentications/me/',
           {
@@ -115,9 +121,9 @@ const changeUserNameTest = () => {
         })
 }
 
-const changePasswordTest = () => {
+const changePasswordTest = async() => {
     newPasswordRandom = generatePassword()
-    axios
+    await axios
     .patch(
       '/authentications/me/',
       {
@@ -145,8 +151,8 @@ const changePasswordTest = () => {
 }
 
 
-const getDataSetsTest = () => {
-    axios.get('http://localhost:4000/data-sets/', {
+const getDataSetsTest = async() => {
+    await axios.get('http://localhost:4000/data-sets/', {
         headers: {
           'X-AccessToken': tokenRandom
         }
@@ -155,57 +161,69 @@ const getDataSetsTest = () => {
       })
 }
 
-const createDatasetTest = () => {
+const createDatasetTest = async() => {
     titleRandom=generateTitle()
     dataTypeRandom='randomDataType'
     descriptionRandom = 'randomDesc'
 
-    axios.post(
+    await axios.post(
         'http://localhost:4000/data-sets/',
         {
-          title: this.app.title,
-          data_type: this.app.data_type,
-          description: this.app.description
+          title: titleRandom,
+          data_type: dataTypeRandom,
+          description: descriptionRandom
         },
         {
           headers: {
-            'X-AccessToken': localStorage.getItem('X-AccessToken')
+            'X-AccessToken': tokenRandom
           }
         }
       )
         .then((response) => {
-          swal({
-            title: 'Success',
-            text: 'Created successfully!',
-            icon: 'success'
-          }).then((result) => {
-            this.$router.push('/api-dashboard-vmc')
-          })
+          console.log('success')
         })
         .catch(function (error) {
-          swal({
-            title: 'Error',
-            text: error.response.data.error.details[0].message,
-            icon: 'error'
-          })
+          console.log(error.response.data.error.details[0].message)
         })
 }
+const updateDataSetTest = async() => {
+  await axios.put(
+    `http://localhost:4000/data-sets/${this.app.id}`,
+    {
+      title: this.app.title,
+      data_type: this.app.data_type,
+      description: this.app.description
+    },
+    {
+      headers: {
+        'X-AccessToken': localStorage.getItem('X-AccessToken')
+      }
+    }
+  ).then((response) => {
+    swal({
+      title: 'Message',
+      text: response.data.message,
+      icon: 'success'
+    }).then((result) => {
+      this.$router.push('/api-dashboard-vmc')
+    })
+  })
+}
 
-export const test = () => {
+(async function test() {
     axiosControl()
     for(var i=0;i<10;i++){
-        signUpTest()
-        loginTest()
-        for(var j=0;j<10;i++){
-            profileViewTest()
-            changeUserNameTest()
-            changePasswordTest()
-            getDataSetsTest()
+        await signUpTest()
+        await loginTest()
 
-
-        }
+        /*for(var j=0;j<10;i++){
+            await profileViewTest()
+            await changeUserNameTest()
+            await changePasswordTest()
+            await getDataSetsTest()
+            await createDatasetTest()
+            await updateDataSetTest()
+        }*/
     }
-}
-export default {
-    test
-}
+    console.log(`Process ${signUpSuccess} ${signUpFailed} ${signUpSuccess+signUpFailed}`)
+})()
