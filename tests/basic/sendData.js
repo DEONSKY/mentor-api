@@ -42,6 +42,9 @@ var changeUsernameFailed = 0
 var changePasswordSuccess = 0
 var changePasswordFailed = 0
 
+var getDatasetSuccess = 0
+var getDatasetFailed = 0
+
 const signUpTest = async() => {
 
     usernameRandom = generatePassword()
@@ -193,6 +196,9 @@ const getDataSetsTest = async() => {
         }
       }).then((response) => {
         console.log(response.data.results)
+        getDatasetSuccess++
+      }).catch((err) => {
+        getDatasetFailed++
       })
 }
 
@@ -258,7 +264,7 @@ const updateDataSetTest = async() => {
           await changePasswordTest()
           
             
-            //await getDataSetsTest()
+            await getDataSetsTest()
             /*
             await createDatasetTest()
             await updateDataSetTest()
@@ -270,4 +276,5 @@ const updateDataSetTest = async() => {
     console.log(`ProfileView // Success: ${profileViewSuccess} Fail: ${profileViewFailed} All requests: ${profileViewSuccess+profileViewFailed}`)
     console.log(`ChangeUsername // Success: ${changeUsernameSuccess} Fail: ${changeUsernameFailed} All requests: ${changeUsernameSuccess+changeUsernameFailed}`)
     console.log(`ChangePassword // Success: ${changePasswordSuccess} Fail: ${changePasswordFailed} All requests: ${changePasswordSuccess+changePasswordFailed}`)
+    console.log(`Get Dataset// Success: ${getDatasetSuccess} Fail: ${getDatasetFailed} All requests: ${getDatasetSuccess+getDatasetFailed}`)
 })()
