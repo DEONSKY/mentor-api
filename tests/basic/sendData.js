@@ -29,6 +29,19 @@ var datasetIdRandom = 0
 
 var signUpSuccess =0
 var signUpFailed = 0
+
+var loginSuccess =0
+var loginFailed = 0
+
+var profileViewSuccess =0
+var profileViewFailed =0
+
+var changeUsernameSuccess = 0
+var changeUsernameFailed = 0
+
+var changePasswordSuccess = 0
+var changePasswordFailed = 0
+
 const signUpTest = async() => {
 
     usernameRandom = generatePassword()
@@ -72,13 +85,15 @@ const loginTest = async() => {
           password: passwordRandom
         })
         .then((respose) => {
-          if (respose.status === 200) {
+          
             tokenRandom = respose.data.token.token_value
             console.log('login succesfull')
-          }
+            loginSuccess++
+          
         })
         .catch((err) => {
           //console.log(err.response.data)
+          loginFailed++
           if (err.response.data.error !== undefined) {
             console.log('Validation Failed')
           }
@@ -86,8 +101,9 @@ const loginTest = async() => {
 }
 
 const profileViewTest = async() => {
+  console.log(tokenRandom)
     await axios
-      .get('/authentications/me/', {
+      .get('http://localhost:4000/authentications/me/', {
         headers: {
           'X-AccessToken': tokenRandom
         }
@@ -97,19 +113,24 @@ const profileViewTest = async() => {
           console.log(response.data.username)
           console.log(response.data.name)
           console.log(response.data.email)
-          console.log(moment(String(response.data.createdAt)).format('DD/MM/YYYY'))
-          console.log(oment(String(response.data.updatedAt)).format('DD/MM/YYYY'))
+          console.log(String(response.data.createdAt))
+          console.log(String(response.data.updatedAt))
+          profileViewSuccess++
         }
+      }).catch((err) => {
+          console.log(err)
+          console.log('Validation Failed')
+          profileViewFailed++
       })
 }
 const changeUserNameTest = async() => {
-    usernameRandom = generateFullName()
+    var newUsernameRandom = generatePassword();
     await axios
         .patch(
-          '/authentications/me/',
+          'http://localhost:4000/authentications/me/',
           {
             password: passwordRandom,
-            newUsername: usernameRandom
+            newUsername: newUsernameRandom
           },
           {
             headers: {
@@ -121,12 +142,15 @@ const changeUserNameTest = async() => {
         .then((response) => {
           if (response.status === 200) {
             console.log('username change successfull')
+            changeUsernameSuccess++
+            usernameRandom = newUsernameRandom
           }
         })
         .catch((err) => {
           if (err.response.status === 401 || err.response.status === 400) {
             console.log(err.response.data.message)
           }
+          changeUsernameFailed++
         })
 }
 
@@ -134,7 +158,7 @@ const changePasswordTest = async() => {
     newPasswordRandom = generatePassword()
     await axios
     .patch(
-      '/authentications/me/',
+      'http://localhost:4000/authentications/me/',
       {
         password: passwordRandom,
         newPassword: newPasswordRandom
@@ -149,14 +173,16 @@ const changePasswordTest = async() => {
     .then((response) => {
       if (response.status === 200) {
         console.log('Your password has been successfully changed.')
+        changePasswordSuccess++
+        passwordRandom = newPasswordRandom
       }
     })
     .catch((err) => {
       if (err.response.status === 401 || err.response.status === 400) {
         console.log(err.response.data.message)
       }
+      changePasswordFailed++
     })
-    passwordRandom = newPasswordRandom
 }
 
 
@@ -224,15 +250,24 @@ const updateDataSetTest = async() => {
     for(var i=0;i<10;i++){
         await signUpTest()
         await loginTest()
-
-        /*for(var j=0;j<10;i++){
-            await profileViewTest()
-            await changeUserNameTest()
-            await changePasswordTest()
-            await getDataSetsTest()
+        
+        for(var j=0;j<10;j++){
+          await profileViewTest()
+          await changeUserNameTest()
+          
+          await changePasswordTest()
+          
+            
+            //await getDataSetsTest()
+            /*
             await createDatasetTest()
             await updateDataSetTest()
-        }*/
+            */
+        }
     }
-    console.log(`Success: ${signUpSuccess} Fail: ${signUpFailed} All requests: ${signUpSuccess+signUpFailed}`)
+    console.log(`Sign UP // Success: ${signUpSuccess} Fail: ${signUpFailed} All requests: ${signUpSuccess+signUpFailed}`)
+    console.log(`Login // Success: ${loginSuccess} Fail: ${loginFailed} All requests: ${loginSuccess+loginFailed}`)
+    console.log(`ProfileView // Success: ${profileViewSuccess} Fail: ${profileViewFailed} All requests: ${profileViewSuccess+profileViewFailed}`)
+    console.log(`ChangeUsername // Success: ${changeUsernameSuccess} Fail: ${changeUsernameFailed} All requests: ${changeUsernameSuccess+changeUsernameFailed}`)
+    console.log(`ChangePassword // Success: ${changePasswordSuccess} Fail: ${changePasswordFailed} All requests: ${changePasswordSuccess+changePasswordFailed}`)
 })()
