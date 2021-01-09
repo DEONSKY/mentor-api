@@ -10,6 +10,7 @@ import {
     generateDataValue, // data table
 } from './generateData.js';
 import axios from 'axios'
+import { response } from 'express';
 
 const axiosControl = async () => {
     console.log('axios test run\n')
@@ -30,12 +31,16 @@ var signUpSuccess =0
 var signUpFailed = 0
 const signUpTest = async() => {
 
-    usernameRandom = generateFullName()
-    passwordRandom = 'randPassword'
-    emailRandom = 'email@email.com'
-    nameRandom = 'this.name'
-
-    console.log('sign up\n')//uye olma
+    usernameRandom = generatePassword()
+    passwordRandom = generatePassword()
+    emailRandom = generateEmail()
+    nameRandom = generateFullName()
+    /*
+    console.log(usernameRandom)
+    console.log(passwordRandom)
+    console.log(emailRandom)
+    console.log(nameRandom)*/
+    console.log('\nsign up')//uye olma
     await axios.post('http://localhost:4000/authentications/register/', {
         username: usernameRandom,
         password: passwordRandom,
@@ -43,11 +48,15 @@ const signUpTest = async() => {
         name: nameRandom
     })
         .then((respose) => {
+          if (respose.status === 201){
             console.log('success')
+            console.log(response.data)
             signUpSuccess++
+          }
         })
         .catch((err) => {
             console.log('error')
+            console.log(err.response.config.data)
             signUpFailed++
         })
         //uye olma sonu
@@ -56,7 +65,7 @@ const signUpTest = async() => {
 
 const loginTest = async() => {
 
-    console.log('login\n')//uye olma
+    console.log('\nlogin')//uye olma
     await axios
         .post('http://localhost:4000/authentications/login/', {
           username: usernameRandom,
@@ -225,5 +234,5 @@ const updateDataSetTest = async() => {
             await updateDataSetTest()
         }*/
     }
-    console.log(`Process ${signUpSuccess} ${signUpFailed} ${signUpSuccess+signUpFailed}`)
+    console.log(`Success: ${signUpSuccess} Fail: ${signUpFailed} All requests: ${signUpSuccess+signUpFailed}`)
 })()
