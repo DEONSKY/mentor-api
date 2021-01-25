@@ -16,6 +16,8 @@ const axiosControl = async () => {
     console.log('axios test run\n')
 }
 
+var idListLoopCounter = 0
+
 var usernameRandom = 'alihan'
 var passwordRandom = 'password'
 var newPasswordRandom = 'newpassword'
@@ -25,7 +27,7 @@ var tokenRandom = 'randToken'
 var titleRandom = 'randTitle'
 var dataTypeRandom = 'randType'
 var descriptionRandom = 'randDesc'
-var datasetIdRandom = 0
+var datasetIds = []
 
 var signUpSuccess =0
 var signUpFailed = 0
@@ -44,6 +46,15 @@ var changePasswordFailed = 0
 
 var getDatasetSuccess = 0
 var getDatasetFailed = 0
+
+var createDatasetSuccess = 0
+var createDatasetFailed = 0
+
+var updateDatasetSuccess = 0
+var updateDatasetFailed = 0
+
+var deleteDatasetSuccess = 0
+var deleteDatasetFailed = 0
 
 const signUpTest = async() => {
 
@@ -195,7 +206,10 @@ const getDataSetsTest = async() => {
           'X-AccessToken': tokenRandom
         }
       }).then((response) => {
-        console.log(response.data.results)
+        console.log(response.data.results[0].id)
+        response.data.results.forEach(function(dataSet){
+          datasetIds.push(dataSet.id)
+        } )
         getDatasetSuccess++
       }).catch((err) => {
         getDatasetFailed++
@@ -203,9 +217,11 @@ const getDataSetsTest = async() => {
 }
 
 const createDatasetTest = async() => {
+
+  
     titleRandom=generateTitle()
-    dataTypeRandom='randomDataType'
-    descriptionRandom = 'randomDesc'
+    dataTypeRandom=generateTitle()
+    descriptionRandom = generateTitle()
 
     await axios.post(
         'http://localhost:4000/data-sets/',
@@ -222,32 +238,51 @@ const createDatasetTest = async() => {
       )
         .then((response) => {
           console.log('success')
+          createDatasetSuccess++
         })
         .catch(function (error) {
-          console.log(error.response.data.error.details[0].message)
+          console.log(error.response.data.message)
+          createDatasetFailed++
         })
+      
 }
-const updateDataSetTest = async() => {
+const updateDataSetTest = async(selectedDataSetId) => {
+  titleRandom=generateTitle()
+  dataTypeRandom=generateTitle()
+  descriptionRandom = generateTitle()
   await axios.put(
-    `http://localhost:4000/data-sets/${this.app.id}`,
+    `http://localhost:4000/data-sets/${selectedDataSetId}`,
     {
-      title: this.app.title,
-      data_type: this.app.data_type,
-      description: this.app.description
+      title: titleRandom,
+      data_type: dataTypeRandom,
+      description: descriptionRandom
     },
     {
       headers: {
-        'X-AccessToken': localStorage.getItem('X-AccessToken')
+        'X-AccessToken': tokenRandom
       }
     }
   ).then((response) => {
-    swal({
-      title: 'Message',
-      text: response.data.message,
-      icon: 'success'
-    }).then((result) => {
-      this.$router.push('/api-dashboard-vmc')
-    })
+    console.log('success')
+    updateDatasetSuccess++
+  }).catch(function (error) {
+    console.log(error.response.data.message)
+    updateDatasetFailed++
+  })
+}
+
+const deleteDataSet= async(selectedDataSetId)=> {
+  await axios.delete(`http://localhost:4000/data-sets/${selectedDataSetId}`, {
+    headers: {
+      'X-AccessToken': tokenRandom
+    }
+  }).then((response) => {
+      console.log('delete success')
+      deleteDatasetSuccess++
+      datasetIds.splice(idListLoopCounter, 1)
+  }).catch(function (error) {
+    console.log(error)
+    deleteDatasetFailed++
   })
 }
 
@@ -256,25 +291,38 @@ const updateDataSetTest = async() => {
     for(var i=0;i<10;i++){
         await signUpTest()
         await loginTest()
-        
+
         for(var j=0;j<10;j++){
+
           await profileViewTest()
           await changeUserNameTest()
-          
-          await changePasswordTest()
-          
             
-            await getDataSetsTest()
-            /*
-            await createDatasetTest()
-            await updateDataSetTest()
-            */
+          await changePasswordTest()
+              
+          await createDatasetTest()
+  
+          await getDataSetsTest()  
+
         }
+        
+        for (const selectedDataSetId of datasetIds) {
+          await updateDataSetTest(selectedDataSetId)
+          await deleteDataSet(selectedDataSetId)
+          idListLoopCounter++
+        }/*
+        for (const selectedDataSetId of datasetIds) {
+          await deleteDataSet(selectedDataSetId)
+        }*/
     }
+
     console.log(`Sign UP // Success: ${signUpSuccess} Fail: ${signUpFailed} All requests: ${signUpSuccess+signUpFailed}`)
     console.log(`Login // Success: ${loginSuccess} Fail: ${loginFailed} All requests: ${loginSuccess+loginFailed}`)
     console.log(`ProfileView // Success: ${profileViewSuccess} Fail: ${profileViewFailed} All requests: ${profileViewSuccess+profileViewFailed}`)
     console.log(`ChangeUsername // Success: ${changeUsernameSuccess} Fail: ${changeUsernameFailed} All requests: ${changeUsernameSuccess+changeUsernameFailed}`)
     console.log(`ChangePassword // Success: ${changePasswordSuccess} Fail: ${changePasswordFailed} All requests: ${changePasswordSuccess+changePasswordFailed}`)
     console.log(`Get Dataset// Success: ${getDatasetSuccess} Fail: ${getDatasetFailed} All requests: ${getDatasetSuccess+getDatasetFailed}`)
+    console.log(`CreateDataset // Success: ${createDatasetSuccess} Fail: ${createDatasetFailed} All requests: ${createDatasetSuccess+createDatasetFailed}`)
+    console.log(`UpdateDataset// Success: ${updateDatasetSuccess} Fail: ${updateDatasetFailed} All requests: ${updateDatasetSuccess+updateDatasetFailed}`)
+    console.log(`DeleteDataset // Success: ${deleteDatasetSuccess} Fail: ${deleteDatasetFailed} All requests: ${deleteDatasetSuccess+deleteDatasetFailed}`)
+
 })()

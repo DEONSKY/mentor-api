@@ -160,13 +160,17 @@ const deleteById = async (req, res, next) => {
         message: 'You DO NOT have permision to delete this Data set!',
       });
     }
-
     dataSet.catch((err) => {
       res.status(500).send(err || {
         message: `Could NOT delete Data set with id= ${id}`,
       });
     });
+  }else{
+    res.status(403).send({
+      message: 'Not found Data set!',
+    });
   }
+
 };
 
 export default {
