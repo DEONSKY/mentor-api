@@ -27,7 +27,7 @@ var tokenRandom = 'randToken'
 var titleRandom = 'randTitle'
 var dataTypeRandom = 'randType'
 var descriptionRandom = 'randDesc'
-var datasetIds = []
+var datasetId = 0
 
 var signUpSuccess =0
 var signUpFailed = 0
@@ -208,7 +208,7 @@ const getDataSetsTest = async() => {
       }).then((response) => {
         console.log(response.data.results[0].id)
         response.data.results.forEach(function(dataSet){
-          datasetIds.push(dataSet.id)
+          datasetId=dataSet.id
         } )
         getDatasetSuccess++
       }).catch((err) => {
@@ -279,7 +279,7 @@ const deleteDataSet= async(selectedDataSetId)=> {
   }).then((response) => {
       console.log('delete success')
       deleteDatasetSuccess++
-      datasetIds.splice(idListLoopCounter, 1)
+      datasetId=0
   }).catch(function (error) {
     console.log(error)
     deleteDatasetFailed++
@@ -292,8 +292,6 @@ const deleteDataSet= async(selectedDataSetId)=> {
         await signUpTest()
         await loginTest()
 
-        for(var j=0;j<10;j++){
-
           await profileViewTest()
           await changeUserNameTest()
             
@@ -303,13 +301,12 @@ const deleteDataSet= async(selectedDataSetId)=> {
   
           await getDataSetsTest()  
 
-        }
-        
-        for (const selectedDataSetId of datasetIds) {
-          await updateDataSetTest(selectedDataSetId)
-          await deleteDataSet(selectedDataSetId)
+
+
+          await updateDataSetTest(datasetId)
+          await deleteDataSet(datasetId)
           idListLoopCounter++
-        }/*
+        /*
         for (const selectedDataSetId of datasetIds) {
           await deleteDataSet(selectedDataSetId)
         }*/

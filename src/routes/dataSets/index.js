@@ -146,25 +146,26 @@ const deleteById = async (req, res, next) => {
   });
 
   if (dataSet) {
-    if (user_id === dataSet.user_id) {
-      models.data_sets.destroy({
-        where: {
-          id,
-        },
-      });
-      res.send({
-        message: 'Data set was deleted successfully!',
-      });
-    } else {
-      res.status(401).send({
-        message: 'You DO NOT have permision to delete this Data set!',
-      });
-    }
-    dataSet.catch((err) => {
+    try{
+      if (user_id === dataSet.user_id) {
+        models.data_sets.destroy({
+          where: {
+            id,
+          },
+        });
+        res.send({
+          message: 'Data set was deleted successfully!',
+        });
+      } else {
+        res.status(401).send({
+          message: 'You DO NOT have permision to delete this Data set!',
+        });
+      }
+    }catch(err){
       res.status(500).send(err || {
         message: `Could NOT delete Data set with id= ${id}`,
       });
-    });
+    };
   }else{
     res.status(403).send({
       message: 'Not found Data set!',
